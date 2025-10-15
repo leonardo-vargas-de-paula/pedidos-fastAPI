@@ -34,14 +34,14 @@ class Usuario(Base):
 class Pedido(Base):
     __tablename__ = "pedidos"
 
-    STATUS_PEDIDOS = {
-        ("PENDENTE", "PENDENTE"),
-        ("CANCELADO", "CANCELADO"),
-        ("FINALIZADO", "FINALIZADO"),
-    }
+    # STATUS_PEDIDOS = {
+    #     ("PENDENTE", "PENDENTE"),
+    #     ("CANCELADO", "CANCELADO"),
+    #     ("FINALIZADO", "FINALIZADO"),
+    # }
 
     id = Column("id",Integer, primary_key=True, autoincrement=True)
-    status = Column("status",ChoiceType(STATUS_PEDIDOS), nullable=False)
+    status = Column("status",String, nullable=False)
     usuario = Column("usuario",Integer, ForeignKey("usuarios.id"))
     preco = Column("preco", Float)
 
