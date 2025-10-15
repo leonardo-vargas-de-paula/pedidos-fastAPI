@@ -1,10 +1,10 @@
 from sqlalchemy import create_engine, Column, Integer, Float, String, Boolean, ForeignKey
-from sqlalchemy.orm import declareative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy_utils import ChoiceType
 
 db = create_engine("sqlite:///banco.db")
 
-Base = declareative_base()
+Base = declarative_base()
 
 """
 Usuario
