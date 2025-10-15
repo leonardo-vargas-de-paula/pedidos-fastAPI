@@ -1,5 +1,6 @@
 annotated-types==0.7.0
 anyio==4.9.0
+alembic
 bcrypt==4.3.0
 cffi==1.17.1
 click==8.1.8
@@ -22,6 +23,7 @@ rsa==4.9.1
 six==1.17.0
 sniffio==1.3.1
 SQLAlchemy==2.0.40
+sqlalchemy_utils
 starlette==0.46.2
 typing-inspection==0.4.0
 typing_extensions==4.13.2
