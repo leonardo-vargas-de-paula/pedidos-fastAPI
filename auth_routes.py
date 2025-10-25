@@ -1,16 +1,35 @@
 from fastapi import APIRouter, Depends, HTTPException
 from dependencies import get_session
 from models import Usuario
-from main import bcrypt_context
-from schemas import UsuarioSchema
+from main import bcrypt_context, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY
+from schemas import UsuarioSchema, LoginSchema
 from sqlalchemy.orm import Session
+from jose import jwt, JWTError
+from datetime import datetime, timedelta, timezone
 
 auth_router = APIRouter(prefix="/auth", tags=["auth"])
+
+def criar_token(id_usuario):
+    data_expiracao = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    dic_info = {
+        "sub": id_usuario,
+        "exp": data_expiracao
+    }
+    token = jwt.encode(dic_info, SECRET_KEY, algorithm=ALGORITHM)
+    return token
+
+def autenticar_usuario(email, senha, session):
+    usuario = session.query(Usuario).filter(Usuario.email==email).first()
+    if not usuario:
+        return False
+    elif not bcrypt_context.verify(senha, usuario.senha):
+        return False
+    return usuario
 
 @auth_router.get("/")
 async def home():
     """
-    rota docstring...
+    docstring...
     """
     return {"message": "Authentication successful"}
 
@@ -27,3 +46,17 @@ async def signup(usuario_schema: UsuarioSchema, session: Session = Depends(get_s
         return {"message": "Usuário cadastrado com sucesso"}
     
     return {"email": email, "senha": senha}
+
+
+@auth_router.post("/login")
+async def login(login_schema: LoginSchema, session: Session = Depends(get_session)):
+    usuario = autenticar_usuario(login_schema.email, login_schema.senha, session)
+
+    if not usuario:
+        raise HTTPException(status_code=400, detail="Usuário não encontrado ou credenciais inválidas")
+    else:
+        acess_token = criar_token(usuario.id)
+        return {
+            "access_token": acess_token,
+            "token_type": "Bearer"
+        }
