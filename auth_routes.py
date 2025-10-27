@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from dependencies import get_session
+from dependencies import get_session, verificar_token
 from models import Usuario
 from main import bcrypt_context, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY
 from schemas import UsuarioSchema, LoginSchema
@@ -26,9 +26,6 @@ def autenticar_usuario(email, senha, session):
         return False
     return usuario
 
-def verificar_token(token, session: Session = Depends(get_session)):
-
-    usuario = session.query(Usuario).filter(Usuario.id==1).first()
 
 @auth_router.get("/")
 async def home():
@@ -67,9 +64,8 @@ async def login(login_schema: LoginSchema, session: Session = Depends(get_sessio
             "token_type": "Bearer"
         }
 
-@auth_router.post("/refresh")
-async def use_refresh_token(token):
-    usuario = verificar_token(token)
+@auth_router.get("/refresh")
+async def use_refresh_token(usuario: Usuario = Depends(verificar_token)):
     acess_token = criar_token(usuario)
     return{
         "access_token": acess_token,
