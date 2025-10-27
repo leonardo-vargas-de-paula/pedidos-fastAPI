@@ -9,8 +9,8 @@ from datetime import datetime, timedelta, timezone
 
 auth_router = APIRouter(prefix="/auth", tags=["auth"])
 
-def criar_token(id_usuario):
-    data_expiracao = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+def criar_token(id_usuario, duracao=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)):
+    data_expiracao = datetime.now(timezone.utc) + duracao
     dic_info = {
         "sub": id_usuario,
         "exp": data_expiracao
@@ -25,6 +25,10 @@ def autenticar_usuario(email, senha, session):
     elif not bcrypt_context.verify(senha, usuario.senha):
         return False
     return usuario
+
+def verificar_token(token, session: Session = Depends(get_session)):
+
+    usuario = session.query(Usuario).filter(Usuario.id==1).first()
 
 @auth_router.get("/")
 async def home():
@@ -56,7 +60,18 @@ async def login(login_schema: LoginSchema, session: Session = Depends(get_sessio
         raise HTTPException(status_code=400, detail="Usuário não encontrado ou credenciais inválidas")
     else:
         acess_token = criar_token(usuario.id)
+        refresh_token = criar_token(usuario.id, timedelta(days=7))
         return {
             "access_token": acess_token,
+            "refresh_token": refresh_token,
             "token_type": "Bearer"
         }
+
+@auth_router.post("/refresh")
+async def use_refresh_token(token):
+    usuario = verificar_token(token)
+    acess_token = criar_token(usuario)
+    return{
+        "access_token": acess_token,
+        "token_type": "Bearer"
+    }
