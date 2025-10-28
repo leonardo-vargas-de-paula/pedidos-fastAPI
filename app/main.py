@@ -22,5 +22,5 @@ from app.routes.order_routes import order_router
 app.include_router(auth_router)
 app.include_router(order_router)
 
-# uvicorn main:app --reload
+# uvicorn app.main:app --reload
 
