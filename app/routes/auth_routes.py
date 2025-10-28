@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
-from dependencies import get_session, verificar_token
-from models import Usuario
-from main import bcrypt_context, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY
-from schemas import UsuarioSchema, LoginSchema
+from app.dependencies.dependencies import get_session, verificar_token
+from app.models.models import Usuario
+from app.main import bcrypt_context, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY
+from app.schemas.schemas import UsuarioSchema, LoginSchema
 from sqlalchemy.orm import Session
 from jose import jwt, JWTError
 from datetime import datetime, timedelta, timezone
