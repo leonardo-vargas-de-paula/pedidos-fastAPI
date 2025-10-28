@@ -18,7 +18,7 @@ async def criar_pedido(pedido_schema: PedidoSchema, session: Session = Depends(g
     return {"message": f"Order created successfully id = {novo_pedido.id}"}
 
 @order_router.put("/pedido/cancelar/{id_pedido}")
-async def calcelar_pedido(id_pedido: int, session: Session = Depends(get_session), usuario: Usuario = Depends(verificar_token)):
+async def cancelar_pedido(id_pedido: int, session: Session = Depends(get_session), usuario: Usuario = Depends(verificar_token)):
     
     
     pedido = session.query(Pedido).filter(Pedido.id==id_pedido).first()
