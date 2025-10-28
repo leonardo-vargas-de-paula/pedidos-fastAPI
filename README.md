@@ -39,4 +39,4 @@ API destinada ao estudo do FastAPI !
 | `preco_unitario`| Float | | Preço de uma unidade deste item. |
 | `pedido` | Integer | Foreign Key (`pedidos.id`) | ID do pedido ao qual este item pertence. |
 
-_*README em construção...*_
+_*⚙️README em construção...*_
