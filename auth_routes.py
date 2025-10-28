@@ -6,6 +6,7 @@ from schemas import UsuarioSchema, LoginSchema
 from sqlalchemy.orm import Session
 from jose import jwt, JWTError
 from datetime import datetime, timedelta, timezone
+from fastapi.security import OAuth2PasswordRequestForm
 
 auth_router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -61,6 +62,21 @@ async def login(login_schema: LoginSchema, session: Session = Depends(get_sessio
         return {
             "access_token": acess_token,
             "refresh_token": refresh_token,
+            "token_type": "Bearer"
+        }
+
+#authorize padrao do fastapi
+@auth_router.post("/login-form")
+async def login_form(formulario: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(get_session)):
+    usuario = autenticar_usuario(formulario.username, formulario.password, session)
+
+    if not usuario:
+        raise HTTPException(status_code=400, detail="Usuário não encontrado ou credenciais inválidas")
+    else:
+        acess_token = criar_token(usuario.id)
+        
+        return {
+            "access_token": acess_token,
             "token_type": "Bearer"
         }
 
