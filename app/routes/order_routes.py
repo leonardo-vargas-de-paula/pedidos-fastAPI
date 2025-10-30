@@ -37,3 +37,13 @@ async def cancelar_pedido(id_pedido: int, session: Session = Depends(get_session
         "message": f"Pedido {pedido.id} cancelado com sucesso",
         "pedido": pedido
     }
+
+@order_router.get("/listar")
+async def listar_pedidos(session: Session = Depends(get_session), usuario: Usuario = Depends(verificar_token)):
+    if not usuario.admin:
+        raise HTTPException(status_code=401, detail="Usuario nao autorizado")
+    else:
+        pedidos = session.query(Pedido).all()
+        return {
+            "pedidos": pedidos
+        }
