@@ -47,8 +47,8 @@ async def listar_pedidos(session: Session = Depends(get_session), usuario: Usuar
         return {
             "pedidos": pedidos
         }
-    
-order_router.post("pedido/adicionar-tem/{id_pedido}")
+
+@order_router.post("/pedido/adicionar-item/{id_pedido}")
 async def adicionar_item_pedido( id_pedido:int, item_pedido_schema: ItemPedidoSchema, session: Session = Depends(get_session), 
                                 usuario: Usuario = Depends(verificar_token)):
     pedido = session.query(Pedido).filter(Pedido.id==id_pedido).first()
@@ -58,4 +58,11 @@ async def adicionar_item_pedido( id_pedido:int, item_pedido_schema: ItemPedidoSc
         raise HTTPException(status_code=401, detail="Usuario nao autorizado a adicionar item a este pedido")
     item_pedido = ItemPedido(item_pedido_schema.quantidade, item_pedido_schema.sabor, item_pedido_schema.tamanho, 
                              item_pedido_schema.preco_unitario, id_pedido)
-    
+    session.add(item_pedido)
+    pedido.calcular_preco()
+    session.commit()
+    return {
+        "message": f"Item adicionado ao pedido {pedido.id} com sucesso",
+        "item_id": item_pedido.id,
+        "preco_pedido": pedido.preco
+    }
