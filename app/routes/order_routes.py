@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends,HTTPException
 from sqlalchemy.orm import Session
 from app.dependencies.dependencies import get_session, verificar_token
-from app.schemas.schemas import PedidoSchema
-from app.models.models import Pedido, Usuario
+from app.schemas.schemas import PedidoSchema, ItemPedidoSchema
+from app.models.models import Pedido, Usuario, ItemPedido
 
 order_router = APIRouter(prefix="/orders", tags=["orders"], dependencies = [Depends(verificar_token)])
 
@@ -47,3 +47,15 @@ async def listar_pedidos(session: Session = Depends(get_session), usuario: Usuar
         return {
             "pedidos": pedidos
         }
+    
+order_router.post("pedido/adicionar-tem/{id_pedido}")
+async def adicionar_item_pedido( id_pedido:int, item_pedido_schema: ItemPedidoSchema, session: Session = Depends(get_session), 
+                                usuario: Usuario = Depends(verificar_token)):
+    pedido = session.query(Pedido).filter(Pedido.id==id_pedido).first()
+    if not pedido:
+        raise HTTPException(status_code=404, detail="Pedido nao encontrado")
+    if not usuario.admin and usuario.id != pedido.usuario:
+        raise HTTPException(status_code=401, detail="Usuario nao autorizado a adicionar item a este pedido")
+    item_pedido = ItemPedido(item_pedido_schema.quantidade, item_pedido_schema.sabor, item_pedido_schema.tamanho, 
+                             item_pedido_schema.preco_unitario, id_pedido)
+    
