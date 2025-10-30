@@ -96,3 +96,16 @@ async def remover_item_pedido(id_item_pedido: int, session: Session = Depends(ge
         "preco_pedido": pedido.preco
     }
 
+@order_router.put("/pedido/finalizar-pedido/{id_pedido}")
+async def finalizar_pedido(id_pedido: int, session: Session = Depends(get_session), usuario: Usuario = Depends(verificar_token)):
+    pedido = session.query(Pedido).filter(Pedido.id == id_pedido).first()
+    if not pedido:
+        raise HTTPException(status_code=404, detail="Pedido nao encontrado")
+    if not usuario.admin and usuario.id != pedido.usuario:
+        raise HTTPException(status_code=401, detail="Usuario nao autorizado")
+    pedido.status = "FINALIZADO"
+    session.commit()
+    return {
+        "message": f"Pedido {pedido.id} finalizado com sucesso",
+        "pedido": pedido
+    }
