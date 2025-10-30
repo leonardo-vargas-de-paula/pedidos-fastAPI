@@ -52,7 +52,8 @@ class Pedido(Base):
         self.status = status
         self.preco = preco
 
-
+    def calcular_preco(self):
+        self.preco = sum(item.preco_unitario * item.quantidade for item in self.itens)
 
 
 class ItemPedido(Base):
