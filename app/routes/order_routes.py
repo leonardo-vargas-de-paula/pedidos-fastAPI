@@ -110,7 +110,7 @@ async def finalizar_pedido(id_pedido: int, session: Session = Depends(get_sessio
         "pedido": pedido
     }
 
-@order_router.get("/pedido/{id_pedido}")
+@order_router.get("/pedido/listar/{id_pedido}")
 async def visualizar_pedido(id_pedido: int, session: Session = Depends(get_session), usuario: Usuario = Depends(verificar_token)):
     pedido = session.query(Pedido).filter(Pedido.id == id_pedido).first()
     if not pedido:
@@ -122,3 +122,14 @@ async def visualizar_pedido(id_pedido: int, session: Session = Depends(get_sessi
         "quantidade_item_pedido": len(pedido.itens),
         "pedido": pedido
     }
+
+@order_router.get("/pedido/listar-por-usuario")
+async def visualizar_pedido_por_usuario(session: Session = Depends(get_session), usuario: Usuario = Depends(verificar_token)):
+    pedido = session.query(Pedido).filter(Pedido.usuario == usuario.id).all()
+
+    return {
+        "quantidade_pedidos": len(pedido),
+        "pedidos": pedido
+    }
+    
+    
